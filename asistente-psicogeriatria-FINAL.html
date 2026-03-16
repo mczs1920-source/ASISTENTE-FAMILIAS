@@ -119,7 +119,7 @@ main{flex:1;display:flex;flex-direction:column;padding-bottom:115px}
         </div>
         <div class="field"><label>Teléfono</label><input id="f-telefono" type="tel" placeholder="612 345 678" inputmode="tel" autocomplete="tel"/></div>
       </div>
-      <div class="field"><label>Número de habitación</label><input id="f-hab" type="text" maxlength="3" placeholder="001 – 020" inputmode="numeric" autocomplete="off"/></div>
+      
       <div class="err" id="errorMsg"></div>
       <button class="btn" onclick="acceder()">Consultar información</button>
     </div>
@@ -181,17 +181,29 @@ const demo = {
 const validas = Array.from({length:20},(_,i)=>String(i+1).padStart(3,'0'));
 let hab=null, nombre="", relacion="", telefono="", cache={};
 
+// Leer habitación fija desde el QR (parámetro ?hab=001)
+const urlParams = new URLSearchParams(window.location.search);
+const habQR = urlParams.get("hab") ? urlParams.get("hab").padStart(3,"0") : null;
+
+// Si no hay habitación válida en la URL, mostrar error
+window.addEventListener("DOMContentLoaded", function(){
+  if(!habQR || !validas.includes(habQR)){
+    document.getElementById("errorMsg").textContent="Acceso no válido. Escanee el código QR de la habitación correcta.";
+    document.querySelector(".btn").disabled=true;
+    document.querySelector(".btn").style.opacity="0.5";
+  }
+});
+
 function acceder(){
   const n=document.getElementById("f-nombre").value.trim();
   const r=document.getElementById("f-relacion").value;
   const t=document.getElementById("f-telefono").value.trim();
-  const h=document.getElementById("f-hab").value.trim().padStart(3,"0");
   const err=document.getElementById("errorMsg");
+  if(!habQR || !validas.includes(habQR)){err.textContent="Acceso no válido. Escanee el código QR de la habitación correcta.";return;}
   if(!n){err.textContent="Introduzca su nombre y apellidos.";return;}
   if(!r){err.textContent="Seleccione su relación con el residente.";return;}
   if(!t){err.textContent="Introduzca su teléfono de contacto.";return;}
-  if(!validas.includes(h)){err.textContent="Habitación no válida (001–020).";return;}
-  err.textContent=""; hab=h; nombre=n; relacion=r; telefono=t;
+  err.textContent=""; hab=habQR; nombre=n; relacion=r; telefono=t;
   registrarAcceso();
   entrarChat();
 }
