@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Asistente Familiar · Psicogeriatría</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --verde:#1B4332;--sage:#52796F;--sage-l:#84A98C;--sage-xl:#D8F3DC;
+  --cream:#F4F1ED;--warm:#E8DFD0;--terra:#C4714A;
+  --text:#1C1C1C;--text-m:#5A5A5A;--text-l:#9A9A9A;
+  --white:#FFFFFF;--shadow:0 2px 20px rgba(27,67,50,.10);
+}
+*{-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+
+header{background:var(--verde);padding:15px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+.logo{width:38px;height:38px;background:var(--sage);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+header h1{font-family:'Playfair Display',serif;color:var(--cream);font-size:1.1rem;line-height:1.2}
+header p{color:var(--sage-l);font-size:.7rem;margin-top:1px}
+main{flex:1;display:flex;flex-direction:column;padding-bottom:115px}
+
+/* PANTALLA ID */
+#screen-id{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 18px;gap:16px;animation:fadeIn .35s ease}
+.card{background:var(--white);border-radius:20px;padding:24px 20px;width:100%;max-width:400px;box-shadow:var(--shadow)}
+.card-top{text-align:center;margin-bottom:20px}
+.card-top .icon{font-size:34px;display:block;margin-bottom:8px}
+.card-top h2{font-family:'Playfair Display',serif;font-size:1.18rem;color:var(--verde);margin-bottom:5px}
+.card-top p{font-size:.81rem;color:var(--text-m);line-height:1.5}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field label{font-size:.72rem;color:var(--text-m);font-weight:500;letter-spacing:.05em;text-transform:uppercase}
+.field input,.field select{padding:11px 14px;border:1.5px solid var(--warm);border-radius:11px;font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--text);background:var(--cream);outline:none;transition:border-color .2s;width:100%;-webkit-appearance:none}
+.field input:focus,.field select:focus{border-color:var(--sage);background:var(--white)}
+.field input::placeholder{color:var(--text-l)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{width:100%;padding:13px;background:var(--verde);color:white;border:none;border-radius:11px;font-family:'DM Sans',sans-serif;font-size:.93rem;font-weight:500;cursor:pointer;margin-top:8px}
+.btn:active{background:var(--sage)}
+.err{color:var(--terra);font-size:.76rem;text-align:center;min-height:15px;margin-top:2px}
+.privacy-note{font-size:.68rem;color:var(--text-l);text-align:center;line-height:1.55;max-width:360px;padding:0 4px}
+.privacy-note strong{color:var(--text-m)}
+
+/* PANTALLA CHAT */
+#screen-chat{flex:1;display:none;flex-direction:column}
+.resident-bar{background:var(--white);margin:13px 13px 0;border-radius:15px;padding:12px 15px;display:flex;align-items:center;gap:11px;box-shadow:var(--shadow)}
+.r-icon{width:40px;height:40px;background:var(--sage-xl);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.r-info strong{display:block;font-size:.9rem;color:var(--verde);font-weight:600}
+.r-info span{font-size:.7rem;color:var(--text-m)}
+.r-dot{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:.7rem;color:var(--sage);font-weight:500;flex-shrink:0}
+.dot{width:7px;height:7px;background:var(--sage);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.familiar-bar{background:var(--warm);margin:8px 13px 0;border-radius:11px;padding:9px 14px;display:flex;align-items:center;justify-content:space-between}
+.familiar-bar-info{font-size:.78rem;color:var(--text-m);display:flex;align-items:center;gap:6px}
+.familiar-bar-info strong{color:var(--verde)}
+.btn-salir{background:none;border:none;font-size:.72rem;color:var(--text-l);cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:underline}
+.chips-wrap{padding:12px 13px 0}
+.chips-label{font-size:.67rem;color:var(--text-l);text-transform:uppercase;letter-spacing:.08em;font-weight:500;margin-bottom:7px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--white);border:1.5px solid var(--warm);color:var(--sage);padding:6px 12px;border-radius:20px;font-size:.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500}
+.chip:active{background:var(--sage);border-color:var(--sage);color:white}
+#chat{flex:1;padding:13px;display:flex;flex-direction:column;gap:13px}
+.msg{display:flex;gap:8px;animation:fadeUp .3s ease}
+.msg.user{flex-direction:row-reverse}
+@keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.av{width:29px;height:29px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:2px}
+.msg.bot .av{background:var(--sage)}.msg.user .av{background:var(--terra);color:white;font-size:9px;font-weight:700}
+.bubble{max-width:86%;padding:11px 14px;border-radius:16px;font-size:.84rem;line-height:1.62}
+.msg.bot .bubble{background:var(--white);color:var(--text);border-bottom-left-radius:4px;box-shadow:var(--shadow)}
+.msg.user .bubble{background:var(--verde);color:var(--cream);border-bottom-right-radius:4px}
+.bubble strong{color:var(--sage)}
+.tag{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.71rem;margin:4px 3px 0 0}
+.tag.ok{background:var(--sage-xl);color:var(--verde)}.tag.warn{background:#FFF3CD;color:#856404}
+.call-btn{display:inline-flex;align-items:center;gap:7px;margin-top:10px;background:var(--verde);color:white;border:none;border-radius:10px;padding:10px 16px;font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:500;cursor:pointer;text-decoration:none}
+.call-btn svg{width:16px;height:16px;fill:white;flex-shrink:0}
+.typing{display:flex;gap:4px;align-items:center;padding:3px 0}
+.typing span{width:6px;height:6px;background:var(--text-l);border-radius:50%;animation:bounce 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+.input-bar{position:fixed;bottom:0;left:0;right:0;background:var(--cream);border-top:1px solid var(--warm);padding:11px 14px;padding-bottom:max(11px,env(safe-area-inset-bottom))}
+.input-inner{display:flex;gap:8px;align-items:flex-end}
+#userInput{flex:1;padding:10px 14px;border:1.5px solid var(--warm);border-radius:11px;font-family:'DM Sans',sans-serif;font-size:.88rem;background:var(--white);color:var(--text);resize:none;outline:none;transition:border-color .2s;min-height:42px;max-height:110px}
+#userInput:focus{border-color:var(--sage)}
+#userInput::placeholder{color:var(--text-l)}
+#sendBtn{width:42px;height:42px;background:var(--sage);border:none;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#sendBtn svg{width:18px;height:18px;fill:white}
+.disclaimer{text-align:center;font-size:.64rem;color:var(--text-l);margin-top:5px}
+</style>
+<link rel="icon" type="image/png" href="data:image/png;base64,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y5swjzynl/G6t/VWB2TKSekc459d9vKupERZi1URERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERF//9k=">
+<link rel="apple-touch-icon" href="data:image/png;base64,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y5swjzynl/G6t/VWB2TKSekc459d9vKupERZi1URERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERF//9k=">
+<meta name="apple-mobile-web-app-title" content="Asistente Psico">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+</head>
+<body>
+<header>
+  <div class="logo">🌿</div>
+  <div><h1>Asistente Familiar</h1><p>Módulo Psicogeriatría · ILUNION VIDASENIOR PARLA</p></div>
+</header>
+<main>
+  <div id="screen-id">
+    <div class="card">
+      <div class="card-top">
+        <span class="icon">👤</span>
+        <h2>Identifíquese para continuar</h2>
+        <p>Sus datos quedan registrados para que el equipo pueda contactarle si es necesario.</p>
+      </div>
+      <div class="field"><label>Nombre y apellidos</label><input id="f-nombre" type="text" placeholder="Ej: Carmen López Martínez" autocomplete="name"/></div>
+      <div class="row2">
+        <div class="field"><label>Relación familiar</label>
+          <select id="f-relacion">
+            <option value="">— Seleccionar —</option>
+            <option>Hijo/a</option><option>Cónyuge / Pareja</option>
+            <option>Hermano/a</option><option>Nieto/a</option>
+            <option>Sobrino/a</option><option>Otro familiar</option>
+            <option>Representante legal</option>
+          </select>
+        </div>
+        <div class="field"><label>Teléfono</label><input id="f-telefono" type="tel" placeholder="612 345 678" inputmode="tel" autocomplete="tel"/></div>
+      </div>
+      <div class="field"><label>Número de habitación</label><input id="f-hab" type="text" maxlength="3" placeholder="001 – 020" inputmode="numeric" autocomplete="off"/></div>
+      <div class="err" id="errorMsg"></div>
+      <button class="btn" onclick="acceder()">Consultar información</button>
+    </div>
+    <p class="privacy-note"><strong>Protección de datos:</strong> Sus datos se registran únicamente para seguimiento interno. No se comparten con terceros.</p>
+  </div>
+
+  <div id="screen-chat">
+    <div class="resident-bar">
+      <div class="r-icon">🏠</div>
+      <div class="r-info"><strong id="r-hab">Habitación 007</strong><span>Módulo Psicogeriatría · Planta 1</span></div>
+      <div class="r-dot"><div class="dot"></div>Activo hoy</div>
+    </div>
+    <div class="familiar-bar">
+      <div class="familiar-bar-info">👤 <strong id="f-tag-nombre">—</strong><span id="f-tag-rel" style="color:var(--text-l)"></span></div>
+      <button class="btn-salir" onclick="salir()">← Cambiar</button>
+    </div>
+    <div class="chips-wrap">
+      <p class="chips-label">Preguntas rápidas</p>
+      <div class="chips">
+        <button class="chip" onclick="sendChip(this.textContent)">¿Cómo está hoy?</button>
+        <button class="chip" onclick="sendChip(this.textContent)">Estado emocional</button>
+        <button class="chip" onclick="sendChip(this.textContent)">Orientación</button>
+        <button class="chip" onclick="sendChip(this.textContent)">Actividades</button>
+        <button class="chip" onclick="sendChip(this.textContent)">¿Alguna incidencia?</button>
+        <button class="chip" onclick="sendChip(this.textContent)">Contactar con el equipo</button>
+      </div>
+    </div>
+    <div id="chat"></div>
+  </div>
+</main>
+
+<div class="input-bar" id="inputBar" style="display:none">
+  <div class="input-inner">
+    <textarea id="userInput" placeholder="Escriba su pregunta..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button id="sendBtn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+  <p class="disclaimer">Información actualizada diariamente por el equipo de psicogeriatría</p>
+</div>
+
+<script>
+const SHEETS_URL = "https://script.google.com/macros/s/AKfycbzXHRlqJZ5-Oa3qwwDCGRlftS8tRrBEhD00o4c2mqnKIjOJ9pP2CM0sJnDeIR5oCJEVUw/exec";
+const TEL = "910 000 000";
+
+const demo = {
+  "001":{estado:"Tranquilo/a",orient_te:"Orientado/a",orient_p:"Reconoce entorno y personas",participacion:"Alta",incidencias:"Sin incidencias",contacto:"Llamada recibida",objetivos:"Estimulación cognitiva mediante reminiscencia",obs:"Buena respuesta a las actividades del día."},
+  "002":{estado:"Ansioso/a",orient_te:"Desorientado en tiempo",orient_p:"Reconoce solo cuidadores",participacion:"Media",incidencias:"Agitación verbal",contacto:"Sin contacto",objetivos:"Técnicas de relajación",obs:"Episodio de ansiedad leve, remitió con intervención."},
+  "003":{estado:"Estable",orient_te:"Orientado/a",orient_p:"Reconoce entorno y personas",participacion:"Alta",incidencias:"Sin incidencias",contacto:"Visita presencial",objetivos:"Mantenimiento de capacidades",obs:"Muy buen estado de ánimo hoy."},
+  "004":{estado:"Apático/a",orient_te:"Desorientado en espacio",orient_p:"Reconoce solo cuidadores",participacion:"Baja",incidencias:"Sin incidencias",contacto:"Familia informada",objetivos:"Activación conductual",obs:"Se ha comunicado la evolución a la familia."},
+  "005":{estado:"Estable",orient_te:"Orientado/a",orient_p:"Reconoce entorno y personas",participacion:"Media",incidencias:"Sin incidencias",contacto:"Sin contacto",objetivos:"Taller de memoria",obs:"Participación adecuada en estimulación cognitiva."},
+  "006":{estado:"Triste",orient_te:"Desorientado en tiempo",orient_p:"Reconoce solo cuidadores",participacion:"Baja",incidencias:"Llanto persistente",contacto:"Llamada recibida",objetivos:"Apoyo emocional",obs:"Episodio de llanto. Notificado al equipo médico."},
+  "007":{estado:"Tranquilo/a",orient_te:"Orientado/a",orient_p:"Reconoce entorno y personas",participacion:"Alta",incidencias:"Sin incidencias",contacto:"Sin contacto",objetivos:"Estimulación sensorial",obs:"Participó activamente en musicoterapia."},
+  "008":{estado:"Estable",orient_te:"Orientado/a",orient_p:"Reconoce entorno y personas",participacion:"Media",incidencias:"Sin incidencias",contacto:"Petición de información",objetivos:"Mantenimiento de capacidades",obs:"Familia solicitó información sobre el plan mensual."},
+  "009":{estado:"Agitado/a",orient_te:"Desorientación severa",orient_p:"No reconoce familiares",participacion:"No asiste",incidencias:"Agitación motora",contacto:"Familia informada",objetivos:"Manejo conductual",obs:"Episodio de agitación. Informado a familia y médico."},
+  "010":{estado:"Estable",orient_te:"Orientado/a",orient_p:"Reconoce entorno y personas",participacion:"Alta",incidencias:"Sin incidencias",contacto:"Visita presencial",objetivos:"Taller de escritura creativa",obs:"Excelente sesión con presencia de familia."},
+};
+
+const validas = Array.from({length:20},(_,i)=>String(i+1).padStart(3,'0'));
+let hab=null, nombre="", relacion="", telefono="", cache={};
+
+function acceder(){
+  const n=document.getElementById("f-nombre").value.trim();
+  const r=document.getElementById("f-relacion").value;
+  const t=document.getElementById("f-telefono").value.trim();
+  const h=document.getElementById("f-hab").value.trim().padStart(3,"0");
+  const err=document.getElementById("errorMsg");
+  if(!n){err.textContent="Introduzca su nombre y apellidos.";return;}
+  if(!r){err.textContent="Seleccione su relación con el residente.";return;}
+  if(!t){err.textContent="Introduzca su teléfono de contacto.";return;}
+  if(!validas.includes(h)){err.textContent="Habitación no válida (001–020).";return;}
+  err.textContent=""; hab=h; nombre=n; relacion=r; telefono=t;
+  registrarAcceso();
+  entrarChat();
+}
+
+function registrarAcceso(){
+  const fecha=new Date().toLocaleString("es-ES");
+  const p=new URLSearchParams({accion:"registrar",hab,nombre,relacion,telefono,fecha});
+  fetch(`${SHEETS_URL}?${p}`).catch(()=>{});
+}
+
+function registrarPregunta(pregunta, respuesta){
+  const fecha=new Date().toLocaleString("es-ES");
+  // Limpiar HTML de la respuesta para guardar solo texto
+  const tmp=document.createElement("div"); tmp.innerHTML=respuesta;
+  const textoResp=tmp.textContent||tmp.innerText||"";
+  const p=new URLSearchParams({accion:"pregunta",hab,nombre,relacion,telefono,pregunta,respuesta:textoResp.substring(0,500),fecha});
+  fetch(`${SHEETS_URL}?${p}`).catch(()=>{});
+}
+
+async function cargarDatos(){
+  if(cache[hab]) return cache[hab];
+  try{
+    const r=await fetch(`${SHEETS_URL}?accion=datos&hab=${hab}`);
+    const j=await r.json();
+    if(j.registrado){cache[hab]=j; return j;}
+    return null;
+  }catch(e){return demo[hab]||null;}
+}
+
+function entrarChat(){
+  document.getElementById("screen-id").style.display="none";
+  const sc=document.getElementById("screen-chat");
+  sc.style.display="flex"; sc.style.flexDirection="column";
+  document.getElementById("inputBar").style.display="block";
+  document.getElementById("r-hab").textContent=`Habitación ${hab}`;
+  document.getElementById("f-tag-nombre").textContent=nombre;
+  document.getElementById("f-tag-rel").textContent=`· ${relacion}`;
+  document.getElementById("chat").innerHTML="";
+  setTimeout(()=>addMsg(
+    `Bienvenido/a, <strong>${nombre.split(" ")[0]}</strong>. Tiene acceso al seguimiento diario de la <strong>Habitación ${hab}</strong>.<br><br>`+
+    `Puede preguntarme sobre el estado de hoy o usar los botones rápidos.`,"bot"),300);
+}
+
+function salir(){
+  hab=null; cache={};
+  document.getElementById("screen-chat").style.display="none";
+  document.getElementById("inputBar").style.display="none";
+  document.getElementById("screen-id").style.display="flex";
+  document.getElementById("chat").innerHTML="";
+}
+
+function hoy(){return new Date().toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"});}
+function botonLlamar(){return `<br><a class="call-btn" href="tel:${TEL}"><svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>Llamar · ${TEL}</a>`;}
+
+async function getResp(texto){
+  const d=await cargarDatos()||demo[hab];
+  const t=texto.toLowerCase();
+  if(!d) return `Los datos de la <strong>Habitación ${hab}</strong> aún no han sido registrados hoy.<br><br>El equipo actualiza la información cada día. Si necesita información urgente:${botonLlamar()}<span class="tag warn">⏳ Pendiente de registro</span>`;
+
+  if(t.includes("cómo está")||t.includes("como esta")||t.includes("resumen")||t.includes("hoy"))
+    return `<strong>Seguimiento de hoy · ${hoy()}</strong><br><br>`+
+      `😊 <strong>Estado emocional:</strong> ${d.estado}<br>`+
+      `🧭 <strong>Orientación temporo-espacial:</strong> ${d.orient_te}<br>`+
+      `👥 <strong>Orientación personal:</strong> ${d.orient_p}<br>`+
+      `🎨 <strong>Participación en actividades:</strong> ${d.participacion}<br>`+
+      `⚠️ <strong>Incidencias:</strong> ${d.incidencias}<br>`+
+      `📞 <strong>Contacto familiar:</strong> ${d.contacto}`+
+      `<span class="tag ok">✅ Registro de hoy</span>`;
+
+  if(t.includes("emocional")||t.includes("ánimo")||t.includes("estado")||t.includes("siente"))
+    return `<strong>Estado emocional · Hoy</strong><br><br>Estado registrado: <strong>${d.estado}</strong><br><br>${d.obs}<span class="tag ok">Registro de hoy</span>`;
+
+  if(t.includes("orientac")||t.includes("reconoc")||t.includes("ubica"))
+    return `<strong>Orientación · Hoy</strong><br><br>🧭 <strong>Temporo-espacial:</strong> ${d.orient_te}<br>👥 <strong>Personal:</strong> ${d.orient_p}<span class="tag ok">Registro de hoy</span>`;
+
+  if(t.includes("actividad")||t.includes("taller")||t.includes("participa"))
+    return `<strong>Actividades · Hoy</strong><br><br>Participación: <strong>${d.participacion}</strong><br>Trabajo realizado: ${d.objetivos}<br><br>${d.obs}<span class="tag ok">Registro de hoy</span>`;
+
+  if(t.includes("incidencia")||t.includes("novedad")||t.includes("ocurrid")||t.includes("problema")){
+    const ok=d.incidencias==="Sin incidencias";
+    return `<strong>Incidencias · Hoy</strong><br><br>`+
+      (ok?`✅ No se ha registrado ninguna incidencia hoy.`:`⚠️ Incidencia: <strong>${d.incidencias}</strong><br><br>${d.obs}`)+
+      (!ok?botonLlamar():"")+
+      `<span class="tag ${ok?"ok":"warn"}">${ok?"Sin incidencias":"Incidencia registrada"}</span>`;
+  }
+
+  if(t.includes("contact")||t.includes("llamar")||t.includes("teléfono")||t.includes("hablar")||t.includes("equipo"))
+    return `Puede contactar con el equipo de psicogeriatría en el horario de atención a familias:<br><br>`+
+      `🕘 <strong>Mañana:</strong> 10:00–13:00h<br>🕓 <strong>Tarde:</strong> 16:00–18:00h`+botonLlamar();
+
+  if(t.includes("objetivo")||t.includes("terapia")||t.includes("plan"))
+    return `<strong>Objetivos terapéuticos · Hoy</strong><br><br>${d.objetivos}<br><br>${d.obs}<span class="tag ok">Registro de hoy</span>`;
+
+  return `Para información más específica contacte con el equipo:${botonLlamar()}Puede preguntarme sobre: estado emocional, orientación, actividades, incidencias u objetivos terapéuticos.`;
+}
+
+function addMsg(html,tipo){
+  const chat=document.getElementById("chat");
+  const div=document.createElement("div");
+  div.className=`msg ${tipo}`;
+  div.innerHTML=`<div class="av">${tipo==="bot"?"🌿":"YO"}</div><div class="bubble">${html}</div>`;
+  chat.appendChild(div);
+  div.scrollIntoView({behavior:"smooth",block:"end"});
+}
+function showTyping(){const chat=document.getElementById("chat");const div=document.createElement("div");div.className="msg bot";div.id="typing";div.innerHTML=`<div class="av">🌿</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;chat.appendChild(div);div.scrollIntoView({behavior:"smooth",block:"end"});}
+function removeTyping(){const el=document.getElementById("typing");if(el)el.remove();}
+
+async function sendMessage(){
+  const input=document.getElementById("userInput");
+  const text=input.value.trim();
+  if(!text)return;
+  input.value="";input.style.height="auto";
+  addMsg(text,"user");showTyping();
+  const resp=await getResp(text);
+  setTimeout(()=>{removeTyping();addMsg(resp,"bot");registrarPregunta(text,resp);},700+Math.random()*400);
+}
+async function sendChip(text){
+  addMsg(text,"user");showTyping();
+  const resp=await getResp(text);
+  setTimeout(()=>{removeTyping();addMsg(resp,"bot");registrarPregunta(text,resp);},700+Math.random()*400);
+}
+function handleKey(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();}}
+function autoResize(el){el.style.height="auto";el.style.height=Math.min(el.scrollHeight,110)+"px";}
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&document.getElementById("screen-id").style.display!=="none")acceder();});
+</script>
+</body>
+</html>
