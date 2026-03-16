@@ -143,6 +143,7 @@ main{flex:1;display:flex;flex-direction:column;padding-bottom:115px}
         <button class="chip" onclick="sendChip(this.textContent)">Estado emocional</button>
         <button class="chip" onclick="sendChip(this.textContent)">Orientación</button>
         <button class="chip" onclick="sendChip(this.textContent)">Actividades</button>
+        <button class="chip" onclick="sendChip(this.textContent)">Comida y cena</button>
         <button class="chip" onclick="sendChip(this.textContent)">¿Alguna incidencia?</button>
         <button class="chip" onclick="sendChip(this.textContent)">Contactar con el equipo</button>
       </div>
@@ -269,9 +270,17 @@ async function getResp(texto){
       `🧭 <strong>Orientación temporo-espacial:</strong> ${d.orient_te}<br>`+
       `👥 <strong>Orientación personal:</strong> ${d.orient_p}<br>`+
       `🎨 <strong>Participación en actividades:</strong> ${d.participacion}<br>`+
+      `🍽️ <strong>Comida:</strong> ${d.comida||"No registrado"}<br>`+
+      `🌙 <strong>Cena:</strong> ${d.cena||"No registrado"}<br>`+
       `⚠️ <strong>Incidencias:</strong> ${d.incidencias}<br>`+
       `📞 <strong>Contacto familiar:</strong> ${d.contacto}`+
       `<span class="tag ok">✅ Registro de hoy</span>`;
+
+  if(t.includes("comida")||t.includes("cena")||t.includes("come")||t.includes("alimenta")||t.includes("ingesta"))
+    return `<strong>Alimentación · Hoy</strong><br><br>`+
+      `🍽️ <strong>Comida:</strong> ${d.comida||"No registrado"}<br>`+
+      `🌙 <strong>Cena:</strong> ${d.cena||"No registrado"}<br><br>`+
+      `${d.obs||""}<span class="tag ok">Registro de hoy</span>`;
 
   if(t.includes("emocional")||t.includes("ánimo")||t.includes("estado")||t.includes("siente"))
     return `<strong>Estado emocional · Hoy</strong><br><br>Estado registrado: <strong>${d.estado}</strong><br><br>${d.obs}<span class="tag ok">Registro de hoy</span>`;
